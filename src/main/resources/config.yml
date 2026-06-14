@@ -23,8 +23,8 @@ revenue_account:
 # 형식: minecraft_item_name: price
 prices:
   # === 다이아몬드만 서버 상점에서 판매 ===
-  diamond: 300.0
-  diamond_block: 2700.0  # 다이아 9개 = 300 × 9
+  diamond: 300
+  diamond_block: 2700  # 다이아 9개 = 300 × 9
 
   # 다른 아이템은 서버 상점에서 판매하지 않습니다
 

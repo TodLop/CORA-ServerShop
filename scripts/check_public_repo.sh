@@ -40,4 +40,9 @@ if git status --short --untracked-files=all | grep -E '(^| )(target/|.*\.(jar|cl
   exit 1
 fi
 
+if rg -n '^\s*(diamond|diamond_block|price|[0-9]+):\s+[0-9]+\.[0-9]+' src/main/resources/config.yml; then
+  echo "Default config contains decimal economy amounts, but runtime validation requires integer amounts." >&2
+  exit 1
+fi
+
 echo "Public repository check passed."
