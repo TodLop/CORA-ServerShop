@@ -37,3 +37,6 @@ permissions:
   servershop.craft.use:
     description: Allows using crafting tables (purchased via /severshop craft)
     default: false
+  servershop.auction.bypass:
+    description: Gives unlimited auction listing slots (bypass purchase system)
+    default: op

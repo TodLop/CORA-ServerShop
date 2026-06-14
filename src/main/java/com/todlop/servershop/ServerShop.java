@@ -53,8 +53,9 @@ public class ServerShop extends JavaPlugin {
             new ConfigValidator(this).validate();
         } catch (ConfigValidator.ConfigException e) {
             getLogger().severe("Config validation failed: " + e.getMessage());
-            getLogger().severe("Plugin will continue but sethome purchases may not work correctly!");
-            getLogger().severe("Please fix your config.yml and reload the plugin.");
+            getLogger().severe("Disabling ServerShop to prevent unsafe economy transactions.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
         }
 
         // Register commands
@@ -104,6 +105,21 @@ public class ServerShop extends JavaPlugin {
         Bukkit.getLogger().severe("[ServerShop] Refund failed for " + player.getName()
                 + " (" + amount + ") after " + reason + ": " + response.errorMessage);
         return false;
+    }
+
+    public static boolean isValidMoneyAmount(double amount) {
+        return Double.isFinite(amount) && amount >= 0;
+    }
+
+    public static boolean rejectInvalidMoneyAmount(Player player, double amount, String context) {
+        if (isValidMoneyAmount(amount)) {
+            return false;
+        }
+
+        player.sendMessage(ChatColor.RED + "가격 설정 오류가 발생했습니다. 관리자에게 문의하세요.");
+        Bukkit.getLogger().severe("[ServerShop] Invalid economy amount for " + context
+                + " by " + player.getName() + ": " + amount);
+        return true;
     }
 
     public LuckPermsIntegration getLuckPermsIntegration() {

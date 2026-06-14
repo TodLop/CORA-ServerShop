@@ -56,6 +56,9 @@ public class AuctionLimitPurchaseHandler {
             player.sendMessage(colorize(getMessage("auction-no-price")));
             return true;
         }
+        if (ServerShop.rejectInvalidMoneyAmount(player, nextTierPrice, "auction limit purchase")) {
+            return true;
+        }
 
         // Check balance
         Economy economy = ServerShop.getEconomy();

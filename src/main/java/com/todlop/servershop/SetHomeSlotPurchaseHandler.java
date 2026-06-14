@@ -49,6 +49,9 @@ public class SetHomeSlotPurchaseHandler {
             player.sendMessage(colorize(getMessage("sethome-no-price")));
             return true;
         }
+        if (ServerShop.rejectInvalidMoneyAmount(player, nextTierPrice, "sethome tier purchase")) {
+            return true;
+        }
 
         // Check balance
         Economy economy = ServerShop.getEconomy();

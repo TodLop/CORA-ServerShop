@@ -40,6 +40,9 @@ public class CraftAccessHandler {
 
         // Get price from config
         int price = plugin.getConfig().getInt("craft_access.price", 1000000);
+        if (ServerShop.rejectInvalidMoneyAmount(player, price, "craft access purchase")) {
+            return true;
+        }
 
         // Check balance
         Economy economy = ServerShop.getEconomy();

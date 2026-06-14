@@ -24,9 +24,27 @@ public class ConfigValidator {
      * @throws ConfigException if config is invalid
      */
     public void validate() throws ConfigException {
+        validateItemPrices();
         validateSethomeSlots();
         validateNicknameShop();
         validateAuctionLimits();
+        validateAccessPurchases();
+    }
+
+    private void validateItemPrices() throws ConfigException {
+        ConfigurationSection prices = plugin.getConfig().getConfigurationSection("prices");
+        if (prices == null) {
+            throw new ConfigException("Missing 'prices' configuration section");
+        }
+
+        for (String itemName : prices.getKeys(false)) {
+            if (!prices.isInt(itemName) && !prices.isDouble(itemName)) {
+                throw new ConfigException("'prices." + itemName + "' must be a number");
+            }
+            validateMoney("prices." + itemName, prices.getDouble(itemName));
+        }
+
+        plugin.getLogger().info("Config validation passed: prices configuration is valid");
     }
 
     /**
@@ -88,13 +106,16 @@ public class ConfigValidator {
         // Validate purchasable tiers have valid prices (can be null for unpurchasable tiers)
         for (int tier = defaultHomes + 1; tier <= maxHomes; tier++) {
             if (tierPrices.contains(String.valueOf(tier))) {
-                if (tierPrices.isInt(String.valueOf(tier)) || tierPrices.isDouble(String.valueOf(tier))) {
-                    double price = tierPrices.getDouble(String.valueOf(tier));
-                    if (price < 0) {
-                        throw new ConfigException("Tier " + tier + " price cannot be negative (got: " + price + ")");
-                    }
+                String path = String.valueOf(tier);
+                Object rawPrice = tierPrices.get(path);
+                if (rawPrice == null) {
+                    continue;
                 }
-                // If it's null or not a number, that's okay - means tier is not purchasable yet
+                if (tierPrices.isInt(path) || tierPrices.isDouble(path)) {
+                    validateMoney("sethome_slots.tier_prices." + tier, tierPrices.getDouble(path));
+                } else {
+                    throw new ConfigException("'sethome_slots.tier_prices." + tier + "' must be a number or null");
+                }
             }
         }
 
@@ -124,9 +145,7 @@ public class ConfigValidator {
             throw new ConfigException("Missing 'nickname_shop.price'");
         }
         double price = config.getDouble("price", -1);
-        if (price < 0) {
-            throw new ConfigException("'nickname_shop.price' cannot be negative");
-        }
+        validateMoney("nickname_shop.price", price);
 
         // Validate cooldown
         if (!config.contains("cooldown")) {
@@ -224,16 +243,56 @@ public class ConfigValidator {
         // Validate purchasable tiers have valid prices
         for (int tier = defaultLimit + step; tier <= maxLimit; tier += step) {
             if (tierPrices.contains(String.valueOf(tier))) {
-                if (tierPrices.isInt(String.valueOf(tier)) || tierPrices.isDouble(String.valueOf(tier))) {
-                    double price = tierPrices.getDouble(String.valueOf(tier));
-                    if (price < 0) {
-                        throw new ConfigException("Auction tier " + tier + " price cannot be negative (got: " + price + ")");
-                    }
+                String path = String.valueOf(tier);
+                Object rawPrice = tierPrices.get(path);
+                if (rawPrice == null) {
+                    continue;
+                }
+                if (tierPrices.isInt(path) || tierPrices.isDouble(path)) {
+                    validateMoney("auction_limits.tier_prices." + tier, tierPrices.getDouble(path));
+                } else {
+                    throw new ConfigException("'auction_limits.tier_prices." + tier + "' must be a number or null");
                 }
             }
         }
 
         plugin.getLogger().info("Config validation passed: auction_limits configuration is valid");
+    }
+
+    private void validateAccessPurchases() throws ConfigException {
+        validateOptionalFeaturePrice("anvil_access", "price");
+        validateOptionalFeaturePrice("craft_access", "price");
+        plugin.getLogger().info("Config validation passed: access purchase configuration is valid");
+    }
+
+    private void validateOptionalFeaturePrice(String sectionName, String key) throws ConfigException {
+        ConfigurationSection config = plugin.getConfig().getConfigurationSection(sectionName);
+        if (config == null) {
+            plugin.getLogger().warning("Missing '" + sectionName + "' - feature disabled");
+            return;
+        }
+
+        if (!config.getBoolean("enabled", true)) {
+            plugin.getLogger().info(sectionName + " disabled in config");
+            return;
+        }
+
+        if (!config.contains(key)) {
+            throw new ConfigException("Missing '" + sectionName + "." + key + "'");
+        }
+        if (!config.isInt(key) && !config.isDouble(key)) {
+            throw new ConfigException("'" + sectionName + "." + key + "' must be a number");
+        }
+        validateMoney(sectionName + "." + key, config.getDouble(key));
+    }
+
+    private void validateMoney(String path, double amount) throws ConfigException {
+        if (!Double.isFinite(amount)) {
+            throw new ConfigException("'" + path + "' must be finite (got: " + amount + ")");
+        }
+        if (amount < 0) {
+            throw new ConfigException("'" + path + "' cannot be negative (got: " + amount + ")");
+        }
     }
 
     /**

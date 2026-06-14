@@ -2,13 +2,12 @@ package com.todlop.servershop;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 /**
  * Wrapper class for EssentialsX API integration.
- * Handles nickname setting and retrieval with fallback to console commands.
+ * Handles nickname setting and retrieval through the EssentialsX API.
  */
 public class EssentialsIntegration {
 
@@ -42,8 +41,6 @@ public class EssentialsIntegration {
 
     /**
      * Set a player's nickname using EssentialsX.
-     * Attempts API first, falls back to console command if API fails.
-     *
      * @param player The player to set nickname for
      * @param nickname The nickname to set (may include color codes)
      * @return true if nickname was successfully set
@@ -65,26 +62,9 @@ public class EssentialsIntegration {
                 plugin.getLogger().warning("Could not get Essentials user for " + player.getName());
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to set nickname via API, trying console command: " + e.getMessage());
+            plugin.getLogger().warning("Failed to set nickname via API: " + e.getMessage());
         }
-
-        // Fallback to console command
-        try {
-            String command = "essentials:nick " + player.getName() + " " + nickname;
-            boolean success = Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-
-            if (success) {
-                plugin.getLogger().info("Set nickname for " + player.getName() + " to '" + nickname + "' via console command");
-            } else {
-                plugin.getLogger().warning("Console command failed to set nickname for " + player.getName());
-            }
-
-            return success;
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to set nickname via console command: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
+        return false;
     }
 
     /**
@@ -109,26 +89,9 @@ public class EssentialsIntegration {
                 plugin.getLogger().warning("Could not get Essentials user for " + player.getName());
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to clear nickname via API, trying console command: " + e.getMessage());
+            plugin.getLogger().warning("Failed to clear nickname via API: " + e.getMessage());
         }
-
-        // Fallback to console command
-        try {
-            String command = "essentials:nick " + player.getName() + " off";
-            boolean success = Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-
-            if (success) {
-                plugin.getLogger().info("Cleared nickname for " + player.getName() + " via console command");
-            } else {
-                plugin.getLogger().warning("Console command failed to clear nickname for " + player.getName());
-            }
-
-            return success;
-        } catch (Exception e) {
-            plugin.getLogger().severe("Failed to clear nickname via console command: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
+        return false;
     }
 
     /**

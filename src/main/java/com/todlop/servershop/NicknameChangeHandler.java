@@ -64,6 +64,9 @@ public class NicknameChangeHandler {
 
         // Get price and check balance
         double price = plugin.getConfig().getDouble("nickname_shop.price", 10000);
+        if (ServerShop.rejectInvalidMoneyAmount(player, price, "nickname purchase")) {
+            return true;
+        }
         Economy economy = ServerShop.getEconomy();
         double balance = economy.getBalance(player);
 

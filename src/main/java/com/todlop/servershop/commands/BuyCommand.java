@@ -45,12 +45,14 @@ public class BuyCommand implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("servershop.admin")) {
                 try {
                     plugin.reloadConfig();
-                    plugin.loadRevenueAccountConfig();
                     new com.todlop.servershop.ConfigValidator(plugin).validate();
+                    plugin.loadRevenueAccountConfig();
                     sender.sendMessage(colorize(getMessage("reload")));
                 } catch (com.todlop.servershop.ConfigValidator.ConfigException e) {
                     sender.sendMessage(colorize("&c설정 검증 실패: " + e.getMessage()));
                     plugin.getLogger().severe("Config validation failed after reload: " + e.getMessage());
+                    plugin.getLogger().severe("Disabling ServerShop to prevent unsafe economy transactions.");
+                    plugin.getServer().getPluginManager().disablePlugin(plugin);
                 }
                 return true;
             }
@@ -128,6 +130,9 @@ public class BuyCommand implements CommandExecutor, TabCompleter {
 
         double pricePerItem = prices.getDouble(itemName);
         double totalPrice = pricePerItem * amount;
+        if (ServerShop.rejectInvalidMoneyAmount(player, totalPrice, "item purchase " + itemName)) {
+            return true;
+        }
 
         // Check economy
         Economy economy = ServerShop.getEconomy();

@@ -45,3 +45,4 @@ Aliases: `/ss`, `/buy`
 | `servershop.nickname.admin` | op | Nickname admin commands |
 | `servershop.anvil.use` | false | Anvil access permission |
 | `servershop.craft.use` | false | Crafting-table access permission |
+| `servershop.auction.bypass` | op | Unlimited auction listing slots |

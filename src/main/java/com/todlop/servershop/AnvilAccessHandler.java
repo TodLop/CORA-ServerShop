@@ -40,6 +40,9 @@ public class AnvilAccessHandler {
 
         // Get price from config
         int price = plugin.getConfig().getInt("anvil_access.price", 500000);
+        if (ServerShop.rejectInvalidMoneyAmount(player, price, "anvil access purchase")) {
+            return true;
+        }
 
         // Check balance
         Economy economy = ServerShop.getEconomy();
