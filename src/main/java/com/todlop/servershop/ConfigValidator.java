@@ -38,10 +38,10 @@ public class ConfigValidator {
         }
 
         for (String itemName : prices.getKeys(false)) {
-            if (!prices.isInt(itemName) && !prices.isDouble(itemName)) {
-                throw new ConfigException("'prices." + itemName + "' must be a number");
+            if (!prices.isInt(itemName)) {
+                throw new ConfigException("'prices." + itemName + "' must be an integer amount");
             }
-            validateMoney("prices." + itemName, prices.getDouble(itemName));
+            validateMoney("prices." + itemName, prices.getInt(itemName));
         }
 
         plugin.getLogger().info("Config validation passed: prices configuration is valid");
@@ -111,10 +111,10 @@ public class ConfigValidator {
                 if (rawPrice == null) {
                     continue;
                 }
-                if (tierPrices.isInt(path) || tierPrices.isDouble(path)) {
-                    validateMoney("sethome_slots.tier_prices." + tier, tierPrices.getDouble(path));
+                if (tierPrices.isInt(path)) {
+                    validateMoney("sethome_slots.tier_prices." + tier, tierPrices.getInt(path));
                 } else {
-                    throw new ConfigException("'sethome_slots.tier_prices." + tier + "' must be a number or null");
+                    throw new ConfigException("'sethome_slots.tier_prices." + tier + "' must be an integer amount or null");
                 }
             }
         }
@@ -144,8 +144,10 @@ public class ConfigValidator {
         if (!config.contains("price")) {
             throw new ConfigException("Missing 'nickname_shop.price'");
         }
-        double price = config.getDouble("price", -1);
-        validateMoney("nickname_shop.price", price);
+        if (!config.isInt("price")) {
+            throw new ConfigException("'nickname_shop.price' must be an integer amount");
+        }
+        validateMoney("nickname_shop.price", config.getInt("price"));
 
         // Validate cooldown
         if (!config.contains("cooldown")) {
@@ -248,10 +250,10 @@ public class ConfigValidator {
                 if (rawPrice == null) {
                     continue;
                 }
-                if (tierPrices.isInt(path) || tierPrices.isDouble(path)) {
-                    validateMoney("auction_limits.tier_prices." + tier, tierPrices.getDouble(path));
+                if (tierPrices.isInt(path)) {
+                    validateMoney("auction_limits.tier_prices." + tier, tierPrices.getInt(path));
                 } else {
-                    throw new ConfigException("'auction_limits.tier_prices." + tier + "' must be a number or null");
+                    throw new ConfigException("'auction_limits.tier_prices." + tier + "' must be an integer amount or null");
                 }
             }
         }
@@ -280,10 +282,10 @@ public class ConfigValidator {
         if (!config.contains(key)) {
             throw new ConfigException("Missing '" + sectionName + "." + key + "'");
         }
-        if (!config.isInt(key) && !config.isDouble(key)) {
-            throw new ConfigException("'" + sectionName + "." + key + "' must be a number");
+        if (!config.isInt(key)) {
+            throw new ConfigException("'" + sectionName + "." + key + "' must be an integer amount");
         }
-        validateMoney(sectionName + "." + key, config.getDouble(key));
+        validateMoney(sectionName + "." + key, config.getInt(key));
     }
 
     private void validateMoney(String path, double amount) throws ConfigException {
