@@ -69,8 +69,8 @@ public class LuckPermsIntegration {
             // Add permission to user
             user.data().add(node);
 
-            // Save user data
-            luckPerms.getUserManager().saveUser(user);
+            // Save user data before reporting success to purchase handlers.
+            luckPerms.getUserManager().saveUser(user).join();
 
             plugin.getLogger().info("Granted permission '" + permission + "' to player " + playerUuid);
             return true;

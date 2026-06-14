@@ -77,7 +77,7 @@ public class LeaderboardManager {
                         entries.add(new PlayerTierEntry(name, highestTier));
                     }
                 } catch (Exception e) {
-                    // Skip players that fail to load
+                    plugin.getLogger().fine("Skipping sethome leaderboard entry for " + uuid + ": " + e.getMessage());
                 }
             }
 
@@ -145,7 +145,7 @@ public class LeaderboardManager {
                         entries.add(new PlayerTierEntry(name, highestTier));
                     }
                 } catch (Exception e) {
-                    // Skip players that fail to load
+                    plugin.getLogger().fine("Skipping auction leaderboard entry for " + uuid + ": " + e.getMessage());
                 }
             }
 

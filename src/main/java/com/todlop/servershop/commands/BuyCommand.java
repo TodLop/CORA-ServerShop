@@ -45,6 +45,7 @@ public class BuyCommand implements CommandExecutor, TabCompleter {
             if (sender.hasPermission("servershop.admin")) {
                 try {
                     plugin.reloadConfig();
+                    plugin.loadRevenueAccountConfig();
                     new com.todlop.servershop.ConfigValidator(plugin).validate();
                     sender.sendMessage(colorize(getMessage("reload")));
                 } catch (com.todlop.servershop.ConfigValidator.ConfigException e) {

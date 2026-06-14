@@ -1,6 +1,7 @@
 package com.todlop.servershop;
 
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,8 +20,7 @@ public class ServerShop extends JavaPlugin {
     public void onEnable() {
         // Save default config
         saveDefaultConfig();
-        revenueAccountEnabled = getConfig().getBoolean("revenue_account.enabled", true);
-        revenueAccountName = getConfig().getString("revenue_account.account", "server");
+        loadRevenueAccountConfig();
 
         // Setup economy
         if (!setupEconomy()) {
@@ -91,14 +91,31 @@ public class ServerShop extends JavaPlugin {
         return essentialsIntegration;
     }
 
+    public void loadRevenueAccountConfig() {
+        revenueAccountEnabled = getConfig().getBoolean("revenue_account.enabled", true);
+        revenueAccountName = getConfig().getString("revenue_account.account", "server");
+        if (revenueAccountName != null) {
+            revenueAccountName = revenueAccountName.trim();
+        }
+        if (revenueAccountEnabled && (revenueAccountName == null || revenueAccountName.isBlank())) {
+            revenueAccountEnabled = false;
+            getLogger().warning("Revenue account is enabled but no account name is configured; proceeds will not be deposited.");
+        }
+    }
+
     /**
      * Deposit revenue to the configured server treasury account via Vault.
      */
     public static void depositToServerAccount(double amount, String details) {
         Economy econ = getEconomy();
         if (econ != null && revenueAccountEnabled && revenueAccountName != null && !revenueAccountName.isBlank()) {
-            econ.depositPlayer(revenueAccountName, amount);
-            Bukkit.getLogger().fine("[ServerShop] Deposited " + amount + " to revenue account for: " + details);
+            EconomyResponse response = econ.depositPlayer(revenueAccountName, amount);
+            if (response.transactionSuccess()) {
+                Bukkit.getLogger().fine("[ServerShop] Deposited " + amount + " to revenue account for: " + details);
+            } else {
+                Bukkit.getLogger().warning("[ServerShop] Failed to deposit " + amount + " to revenue account '"
+                        + revenueAccountName + "': " + response.errorMessage);
+            }
         }
     }
 }
