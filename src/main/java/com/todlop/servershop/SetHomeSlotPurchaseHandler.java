@@ -89,14 +89,11 @@ public class SetHomeSlotPurchaseHandler {
             return true;
         }
 
-        // Grant base permission first (required for multiple homes)
-        boolean basePermGranted = luckPerms.grantPermission(player.getUniqueId(), "essentials.sethome.multiple");
+        boolean permissionGranted = luckPerms.grantPermissions(
+                player.getUniqueId(),
+                java.util.List.of("essentials.sethome.multiple", permission));
 
-        // Then grant tier-specific permission
-        boolean permissionGranted = luckPerms.grantPermission(player.getUniqueId(), permission);
-
-        // Check if both succeeded
-        if (!basePermGranted || !permissionGranted) {
+        if (!permissionGranted) {
             // Refund - permission grant failed
             ServerShop.refundPlayer(player, nextTierPrice, "권한 부여 실패!");
             plugin.getLogger().severe("Failed to grant permission to " + player.getName() + "! Purchase cancelled and refunded.");

@@ -6,6 +6,7 @@ import net.luckperms.api.node.Node;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -51,6 +52,10 @@ public class LuckPermsIntegration {
      * @return true if permission was successfully granted
      */
     public boolean grantPermission(UUID playerUuid, String permission) {
+        return grantPermissions(playerUuid, java.util.List.of(permission));
+    }
+
+    public boolean grantPermissions(UUID playerUuid, Collection<String> permissions) {
         if (luckPerms == null) {
             plugin.getLogger().severe("LuckPerms not initialized! Cannot grant permission.");
             return false;
@@ -63,20 +68,19 @@ public class LuckPermsIntegration {
             // Wait for user to load and grant permission
             User user = userFuture.join(); // Block until loaded
 
-            // Create permission node
-            Node node = Node.builder(permission).build();
-
-            // Add permission to user
-            user.data().add(node);
+            for (String permission : permissions) {
+                Node node = Node.builder(permission).build();
+                user.data().add(node);
+            }
 
             // Save user data before reporting success to purchase handlers.
             luckPerms.getUserManager().saveUser(user).join();
 
-            plugin.getLogger().info("Granted permission '" + permission + "' to player " + playerUuid);
+            plugin.getLogger().info("Granted permissions " + permissions + " to player " + playerUuid);
             return true;
 
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to grant permission '" + permission + "' to player " + playerUuid + ": " + e.getMessage());
+            plugin.getLogger().severe("Failed to grant permissions " + permissions + " to player " + playerUuid + ": " + e.getMessage());
             e.printStackTrace();
             return false;
         }
