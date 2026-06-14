@@ -91,8 +91,7 @@ public class NicknameChangeHandler {
 
         if (!success) {
             // REFUND - nickname change failed
-            economy.depositPlayer(player, price);
-            player.sendMessage(colorize("&c닉네임 변경 실패! 돈이 반환되었습니다."));
+            ServerShop.refundPlayer(player, price, "닉네임 변경 실패!");
             plugin.getLogger().severe("Failed to set nickname for " + player.getName() + "! Purchase cancelled and refunded.");
             return true;
         }

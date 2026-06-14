@@ -22,13 +22,21 @@ for marker in "${blocked_markers[@]}"; do
   fi
 done
 
-if find . -path './.git' -prune -o \( -name '*.jar' -o -name '*.class' \) -print | grep -q .; then
-  echo "Build artifact found in repository tree." >&2
+if git ls-files | grep -E '(^|/)(target/|.*\.(jar|class)$)' >/dev/null; then
+  echo "Tracked build artifact found." >&2
   exit 1
 fi
 
-if find . -path './.git' -prune -o -path './target' -print | grep -q .; then
-  echo "Maven target directory found in repository tree." >&2
+if find . -path './.git' -prune -o \( -name '*.jar' -o -name '*.class' \) -print | grep -q .; then
+  echo "Warning: local ignored build artifacts exist; they are not tracked." >&2
+fi
+
+if [ -d target ]; then
+  echo "Warning: local Maven target directory exists; it is ignored and not tracked." >&2
+fi
+
+if git status --short --untracked-files=all | grep -E '(^| )(target/|.*\.(jar|class)$)' >/dev/null; then
+  echo "Unignored build artifact found." >&2
   exit 1
 fi
 

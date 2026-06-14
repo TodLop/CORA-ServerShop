@@ -3,6 +3,8 @@ package com.todlop.servershop;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -81,6 +83,27 @@ public class ServerShop extends JavaPlugin {
 
     public static Economy getEconomy() {
         return economy;
+    }
+
+    public static boolean refundPlayer(Player player, double amount, String reason) {
+        Economy econ = getEconomy();
+        if (econ == null) {
+            player.sendMessage(ChatColor.RED + "환불 처리 중 경제 시스템 오류가 발생했습니다. 관리자에게 문의하세요.");
+            Bukkit.getLogger().severe("[ServerShop] Refund failed for " + player.getName()
+                    + " (" + amount + ") after " + reason + ": economy provider unavailable");
+            return false;
+        }
+
+        EconomyResponse response = econ.depositPlayer(player, amount);
+        if (response.transactionSuccess()) {
+            player.sendMessage(ChatColor.RED + reason + " 돈이 반환되었습니다.");
+            return true;
+        }
+
+        player.sendMessage(ChatColor.RED + reason + " 환불 처리에 실패했습니다. 관리자에게 문의하세요.");
+        Bukkit.getLogger().severe("[ServerShop] Refund failed for " + player.getName()
+                + " (" + amount + ") after " + reason + ": " + response.errorMessage);
+        return false;
     }
 
     public LuckPermsIntegration getLuckPermsIntegration() {

@@ -65,8 +65,7 @@ public class CraftAccessHandler {
         LuckPermsIntegration luckPerms = plugin.getLuckPermsIntegration();
         if (!luckPerms.isAvailable()) {
             // Refund - LuckPerms not available
-            economy.depositPlayer(player, price);
-            player.sendMessage(colorize("&cLuckPerms 연동 오류! 돈이 반환되었습니다."));
+            ServerShop.refundPlayer(player, price, "LuckPerms 연동 오류!");
             plugin.getLogger().severe("LuckPerms not available! Purchase cancelled.");
             return true;
         }
@@ -75,8 +74,7 @@ public class CraftAccessHandler {
 
         if (!permissionGranted) {
             // Refund - permission grant failed
-            economy.depositPlayer(player, price);
-            player.sendMessage(colorize("&c권한 부여 실패! 돈이 반환되었습니다."));
+            ServerShop.refundPlayer(player, price, "권한 부여 실패!");
             plugin.getLogger().severe("Failed to grant craft permission to " + player.getName() + "! Purchase cancelled and refunded.");
             return true;
         }

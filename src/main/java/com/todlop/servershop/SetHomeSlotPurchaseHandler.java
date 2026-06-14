@@ -76,8 +76,7 @@ public class SetHomeSlotPurchaseHandler {
 
         if (permission == null) {
             // Refund - no permission configured for this tier
-            economy.depositPlayer(player, nextTierPrice);
-            player.sendMessage(colorize("&c티어 권한 설정 오류! 돈이 반환되었습니다."));
+            ServerShop.refundPlayer(player, nextTierPrice, "티어 권한 설정 오류!");
             plugin.getLogger().severe("No permission configured for tier " + nextTier + "! Purchase cancelled.");
             return true;
         }
@@ -85,8 +84,7 @@ public class SetHomeSlotPurchaseHandler {
         LuckPermsIntegration luckPerms = plugin.getLuckPermsIntegration();
         if (!luckPerms.isAvailable()) {
             // Refund - LuckPerms not available
-            economy.depositPlayer(player, nextTierPrice);
-            player.sendMessage(colorize("&cLuckPerms 연동 오류! 돈이 반환되었습니다."));
+            ServerShop.refundPlayer(player, nextTierPrice, "LuckPerms 연동 오류!");
             plugin.getLogger().severe("LuckPerms not available! Purchase cancelled.");
             return true;
         }
@@ -100,8 +98,7 @@ public class SetHomeSlotPurchaseHandler {
         // Check if both succeeded
         if (!basePermGranted || !permissionGranted) {
             // Refund - permission grant failed
-            economy.depositPlayer(player, nextTierPrice);
-            player.sendMessage(colorize("&c권한 부여 실패! 돈이 반환되었습니다."));
+            ServerShop.refundPlayer(player, nextTierPrice, "권한 부여 실패!");
             plugin.getLogger().severe("Failed to grant permission to " + player.getName() + "! Purchase cancelled and refunded.");
             return true;
         }
